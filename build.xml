@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="notepad-v1-mirah" default="compile">
+  <property file="local.properties" />
+  <property file="build.properties" />
+  <property file="default.properties" />
+
+  <path id="android.antlibs">
+    <pathelement path="${sdk.dir}/tools/lib/anttasks.jar" />
+    <pathelement path="${sdk.dir}/tools/lib/sdklib.jar" />
+    <pathelement path="${sdk.dir}/tools/lib/androidprefs.jar" />
+  </path>
+
+  <!--
+      
+      TODO: can we remove android-original-compile and refer
+            to the default implementation of "compile" using
+            this method?
+            
+            <taskdef name="android-export"
+            classname="com.android.ant.MultiApkExportTask"
+            classpathref="android.antlibs" />
+
+  -->
+
+  <target name="-android-original-compile"
+          description="Copied directly from the android build rules.">
+    <if condition="${manifest.hasCode}">
+      <then>
+        <!-- If android rules are used for a test project, its classpath should include
+             tested project's location -->
+        <condition property="extensible.classpath"
+                   value="${tested.project.absolute.dir}/bin/classes"
+                   else=".">
+          <isset property="tested.project.absolute.dir" />
+        </condition>
+        <condition property="extensible.libs.classpath"
+                   value="${tested.project.absolute.dir}/libs"
+                   else="${jar.libs.dir}">
+          <isset property="tested.project.absolute.dir" />
+        </condition>
+        <javac encoding="${java.encoding}"
+               source="${java.source}" target="${java.target}"
+               debug="true" extdirs=""
+               destdir="${out.classes.absolute.dir}"
+               bootclasspathref="android.target.classpath"
+               verbose="${verbose}"
+               classpath="${extensible.classpath}"
+               classpathref="jar.libs.ref"
+               includeantruntime="false">
+          <src path="${source.absolute.dir}" />
+          <src path="${gen.absolute.dir}" />
+          <src refid="project.libraries.src" />
+          <classpath>
+            <fileset dir="${extensible.libs.classpath}" includes="*.jar" />
+          </classpath>
+        </javac>
+      </then>
+      <else>
+        <echo>hasCode = false. Skipping...</echo>
+      </else>
+    </if>        
+  </target>
+
+  
+  <!-- Compile Mirah code. Depends on -android-original-compile so it can reference Java classes. -->
+  <target name="-mirahc" depends="-android-original-compile">
+    <if condition="${manifest.hasCode}">
+      <then>
+        <property name="android.jar.classpath" value="${sdk.dir}/platforms/${target-version}/android.jar" />
+        <property name="maps.jar.classpath" value="${sdk.dir}/add-ons/addon_google_apis_google_inc_9/libs/maps.jar" />
+        <property name="local.libs.classpath" value="${out.classes.absolute.dir}/:${jar.libs.absolute.dir}/" />
+
+        <exec executable="mirahc.bat" dir="src" failonerror="true">
+          <arg line="-c ${android.jar.classpath}:${maps.jar.classpath}:${local.libs.classpath}" />
+          <arg value="-d" />
+          <arg value="../bin/classes" />
+          <arg value="." />
+        </exec>
+      </then>
+      <else>
+        <echo>hasCode = false. Skipping...</echo>
+      </else>
+    </if>
+  </target>
+
+  <!-- "compile" is now a stub to run java, mirah & deps in order -->
+  <target name="compile"
+          depends="-resource-src, -aidl, -pre-compile, -android-original-compile, -mirahc"
+          description="Compiles project's .java files into .class files" />
+  
+  <taskdef name="setup"
+           classname="com.android.ant.SetupTask"
+           classpathref="android.antlibs" />
+  <setup />
+  
+</project>
