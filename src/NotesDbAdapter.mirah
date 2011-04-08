@@ -21,6 +21,7 @@ import "android.util.Log"
 class NotesDbAdapter
   
   def self.initialize
+    Log.w "WWW", "Notesdbadapter.self.initialize called"
     @@DATABASE_TABLE = "notes"
     @@KEY_TITLE = "title"
     @@KEY_BODY = "body"
@@ -33,6 +34,8 @@ class NotesDbAdapter
   ## @param ctx the Context within which to work
   def initialize (ctx: Context)
     @ctx = ctx
+    @db = SQLiteDatabase(nil)
+    @dbHelper = DatabaseHelper(nil)
     # @db: SQLiteDatabase = nil
     # @dbHelper: DatabaseHelper = nil
   end
@@ -53,7 +56,10 @@ class NotesDbAdapter
   def close(): void
     @dbHelper.close
   end
-  
+
+  def self.KEY_TITLE
+    @@KEY_TITLE
+  end
   
   ## Create a new note using the title and body provided. If the note is
   ## successfully created return the new rowId for that note, otherwise return
@@ -121,17 +127,20 @@ class NotesDbAdapter
 end
 
 class DatabaseHelper < SQLiteOpenHelper
-
+  
   def self.initialize
+    Log.w nil, "DatabaseHelper.self.initialize called"
     @@TAG = "NotesDbAdapter"    
     ## Database creation sql statement
     @@DATABASE_CREATE = "create table notes (_id integer primary key autoincrement, " + "title text not null, body text not null);"
     @@DATABASE_NAME = "data"
     @@DATABASE_VERSION = 2
+    Log.w "WWW", "db version self.init #{@@DATABASE_VERSION}"
   end
   
   def initialize (context: Context)
     super context, @@DATABASE_NAME, CursorFactory(nil), @@DATABASE_VERSION
+    Log.w @@TAG, "db version init " + @@DATABASE_VERSION
   end
   
   def onCreate(db: SQLiteDatabase):void
