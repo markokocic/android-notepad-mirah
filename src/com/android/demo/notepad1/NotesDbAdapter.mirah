@@ -32,9 +32,9 @@ class NotesDbAdapter
   ## 
   ## @param ctx the Context within which to work
   def initialize (ctx: Context)
-    @mCtx = ctx
-    # @mDb: SQLiteDatabase = nil
-    # @mDbHelper: DatabaseHelper = nil
+    @ctx = ctx
+    # @db: SQLiteDatabase = nil
+    # @dbHelper: DatabaseHelper = nil
   end
   
   ## Open the notes database. If it cannot be opened, try to create a new
@@ -45,13 +45,13 @@ class NotesDbAdapter
   ##         initialization call)
   ## @throws SQLException if the database could be neither opened or created
   def open: NotesDbAdapter
-    @mDbHelper = DatabaseHelper.new @mCtx
-    @mDb = @mDbHelper.getWritableDatabase
+    @dbHelper = DatabaseHelper.new @ctx
+    @db = @dbHelper.getWritableDatabase
     self
   end
   
   def close(): void
-    @mDbHelper.close
+    @dbHelper.close
   end
   
   
@@ -67,7 +67,7 @@ class NotesDbAdapter
     initialValues.put @@KEY_TITLE, title
     initialValues.put @@KEY_BODY, body
     
-    return @mDb.insert @@DATABASE_TABLE, null, initialValues
+    return @db.insert @@DATABASE_TABLE, null, initialValues
   end
   
   ## Delete the note with the given rowId
@@ -75,10 +75,10 @@ class NotesDbAdapter
   ## @param rowId id of note to delete
   ## @return true if deleted, false otherwise
   def deleteNote(rowId: long) : boolean
-    (@mDb.delete @@DATABASE_TABLE, @@KEY_ROWID + "=" + rowId, null) > 0
+    (@db.delete @@DATABASE_TABLE, @@KEY_ROWID + "=" + rowId, null) > 0
   end
 
-  def stringArray(list: java.util.List): String[]
+  def toStringArray(list: java.util.List): String[]
     strings = String[list.size]
     list.size.times { |i| strings[i] = String(list.get(i)) }
     strings
@@ -88,7 +88,7 @@ class NotesDbAdapter
   ## 
   ## @return Cursor over all notes
   def fetchAllNotes() : Cursor
-    return @mDb.query @@DATABASE_TABLE, stringArray([@@KEY_ROWID, @@KEY_TITLE, @@KEY_BODY]), null, null, null, null, null
+    return @db.query @@DATABASE_TABLE, toStringArray([@@KEY_ROWID, @@KEY_TITLE, @@KEY_BODY]), null, null, null, null, null
   end
   
   ## Return a Cursor positioned at the note that matches the given rowId
@@ -97,7 +97,7 @@ class NotesDbAdapter
   ## @return Cursor positioned to matching note, if found
   ## @throws SQLException if note could not be found/retrieved
   def fetchNote(rowId: long): Cursor
-    mCursor = @mDb.query true, @@DATABASE_TABLE, stringArray([@@KEY_ROWID, @@KEY_TITLE, @@KEY_BODY]), @@KEY_ROWID + "=" + rowId, null, null, null, null, null
+    mCursor = @db.query true, @@DATABASE_TABLE, toStringArray([@@KEY_ROWID, @@KEY_TITLE, @@KEY_BODY]), @@KEY_ROWID + "=" + rowId, null, null, null, null, null
     if !mCursor.nil?
       mCursor.moveToFirst
     end
@@ -116,7 +116,7 @@ class NotesDbAdapter
     args = ContentValues.new
     args.put @@KEY_TITLE, title
     args.put @@KEY_BODY, body
-    return (@mDb.update @@DATABASE_TABLE, args, @@KEY_ROWID + "=" + rowId, null) > 0;
+    return (@db.update @@DATABASE_TABLE, args, @@KEY_ROWID + "=" + rowId, null) > 0;
   end
 end
 

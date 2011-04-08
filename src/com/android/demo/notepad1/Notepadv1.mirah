@@ -8,7 +8,7 @@ import "android.view.MenuItem"
 import "com.android.demo.notepad1.NotesDbAdapter"
 
 class Notepadv1 < Activity
-  @mNoteNumber = 1
+  @noteNumber = 1
 
   ## Called when the activity is first created. */
   def onCreate(savedInstanceState: Bundle): void
@@ -17,7 +17,7 @@ class Notepadv1 < Activity
   
   def onCreateOptionsMenu(menu: Menu): boolean
     # TODO Auto-generated method stub
-    super  menu
+    super menu
   end
   
   def onOptionsItemSelected(item: MenuItem): boolean
