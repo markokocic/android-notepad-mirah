@@ -20,7 +20,7 @@ import "android.util.Log"
 
 class NotesDbAdapter
   
-  def self.initialize
+  def self.initialize: void
     Log.w "WWW", "Notesdbadapter.self.initialize called"
     @@DATABASE_TABLE = "notes"
     @@KEY_TITLE = "title"
@@ -128,7 +128,7 @@ end
 
 class DatabaseHelper < SQLiteOpenHelper
   
-  def self.initialize
+  def self.initialize: void
     Log.w nil, "DatabaseHelper.self.initialize called"
     @@TAG = "NotesDbAdapter"    
     ## Database creation sql statement

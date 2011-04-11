@@ -11,7 +11,7 @@ import android.view.MenuItem
 
 class Notepadv1 < ListActivity
 
-  def self.initialize
+  def self.initialize: void
     @@INSERT_ID = Menu.FIRST
   end
 
