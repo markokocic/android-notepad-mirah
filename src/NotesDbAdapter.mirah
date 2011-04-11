@@ -1,13 +1,13 @@
-package "com.android.demo.notepad1"
+package com.android.demo.notepad2
 
-import "android.content.ContentValues"
-import "android.content.Context"
-import "android.database.Cursor"
-import "android.database.SQLException"
-import "android.database.sqlite.SQLiteDatabase"
-import "android.database.sqlite.SQLiteDatabase.CursorFactory"
-import "android.database.sqlite.SQLiteOpenHelper"
-import "android.util.Log"
+import android.content.ContentValues
+import android.content.Context
+import android.database.Cursor
+import android.database.SQLException
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteDatabase.CursorFactory
+import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
 
 ## Simple notes database access helper class. Defines the basic CRUD operations
 ## for the notepad example, and gives the ability to list all notes as well as
@@ -21,7 +21,6 @@ import "android.util.Log"
 class NotesDbAdapter
   
   def self.initialize: void
-    Log.w "WWW", "Notesdbadapter.self.initialize called"
     @@DATABASE_TABLE = "notes"
     @@KEY_TITLE = "title"
     @@KEY_BODY = "body"
