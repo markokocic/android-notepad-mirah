@@ -56,8 +56,16 @@ class NotesDbAdapter
     @dbHelper.close
   end
 
+  def self.KEY_ROWID
+    @@KEY_ROWID
+  end
+
   def self.KEY_TITLE
     @@KEY_TITLE
+  end
+
+  def self.KEY_BODY
+    @@KEY_BODY
   end
   
   ## Create a new note using the title and body provided. If the note is
@@ -128,18 +136,15 @@ end
 class DatabaseHelper < SQLiteOpenHelper
   
   def self.initialize: void
-    Log.w nil, "DatabaseHelper.self.initialize called"
     @@TAG = "NotesDbAdapter"    
     ## Database creation sql statement
     @@DATABASE_CREATE = "create table notes (_id integer primary key autoincrement, " + "title text not null, body text not null);"
     @@DATABASE_NAME = "data"
     @@DATABASE_VERSION = 2
-    Log.w "WWW", "db version self.init #{@@DATABASE_VERSION}"
   end
   
   def initialize (context: Context)
     super context, @@DATABASE_NAME, CursorFactory(nil), @@DATABASE_VERSION
-    Log.w @@TAG, "db version init " + @@DATABASE_VERSION
   end
   
   def onCreate(db: SQLiteDatabase):void

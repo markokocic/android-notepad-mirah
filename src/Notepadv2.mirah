@@ -10,6 +10,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ContextMenu.ContextMenuInfo
+import android.widget.AdapterView.AdapterContextMenuInfo
 import android.widget.ListView
 import android.widget.SimpleCursorAdapter
 
@@ -26,7 +27,7 @@ class Notepadv2 < ListActivity
 
   def initialize
     @noteNumber = 1
-    @notesCursor = nil
+    @notesCursor = Cursor(nil)
   end
 
   ## Called when the activity is first created.
@@ -37,6 +38,7 @@ class Notepadv2 < ListActivity
     @dbHelper = NotesDbAdapter.new self
     @dbHelper.open
     fillData
+    registerForContextMenu (getListView)
   end
   
   $Override
@@ -55,10 +57,6 @@ class Notepadv2 < ListActivity
     super featureId, item
   end
 
-  def createNote
-
-  end
-
   def fillData: void
     @notesCursor = @dbHelper.fetchAllNotes
     startManagingCursor @notesCursor
@@ -71,31 +69,53 @@ class Notepadv2 < ListActivity
   end
 
   $Override
-  def onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenuInfo)
+  def onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenuInfo): void
     super menu, v, menuInfo
-    # TODO: fill in rest of method
+    menu.add 0, @@DELETE_ID, 0, R.string.menu_delete
   end
 
   $Override
   def onContextItemSelected(item: MenuItem): boolean
-    # TODO: fill in rest of method
+    if item.getItemId == @@DELETE_ID
+      info = item.getMenuInfo
+      @dbHelper.deleteNote AdapterContextMenuInfo(info).id
+      fillData
+      return true
+    end
     super item
   end
 
   def createNote()
-      # TODO: fill in implementation
+    intent = Intent.new self, NoteEdit.class
+    startActivityForResult intent, @@ACTIVITY_CREATE
   end
     
   $Override
   def onListItemClick(l: ListView, v: View, position: int, id: long): void
     super l, v, position, id
-    # TODO: fill in rest of method
+    c = @notesCursor
+    c.moveToPosition position
+    i = Intent.new self, NoteEdit.class
+    i.putExtra NotesDbAdapter.KEY_ROWID, id
+    i.putExtra NotesDbAdapter.KEY_TITLE, c.getString(c.getColumnIndexOrThrow(NotesDbAdapter.KEY_TITLE))
+    i.putExtra NotesDbAdapter.KEY_BODY, c.getString(c.getColumnIndexOrThrow(NotesDbAdapter.KEY_BODY))
+    startActivityForResult i, @@ACTIVITY_EDIT
   end
 
   $Override
   def onActivityResult(requestCode: int, resultCode: int, intent: Intent): void
     super requestCode, resultCode, intent
-    # TODO: fill in rest of method
+    extras = intent.getExtras
+    
+    title = extras.getString NotesDbAdapter.KEY_TITLE
+    body = extras.getString NotesDbAdapter.KEY_BODY
+    
+    if requestCode == @@ACTIVITY_CREATE
+      @dbHelper.createNote title, body
+    elsif requestCode == @@ACTIVITY_EDIT
+      rowId = extras.getLong NotesDbAdapter.KEY_ROWID
+      @dbHelper.updateNote rowId, title, body
+    end
+    fillData
   end
-
 end
