@@ -1,4 +1,4 @@
-package com.android.demo.notepad2
+package com.android.demo.notepad3
 
 import android.app.Activity
 import android.app.ListActivity
@@ -15,7 +15,7 @@ import android.widget.ListView
 import android.widget.SimpleCursorAdapter
 
 
-class Notepadv2 < ListActivity
+class Notepadv3 < ListActivity
 
   def self.initialize: void
     @@ACTIVITY_CREATE = 0
@@ -27,7 +27,6 @@ class Notepadv2 < ListActivity
 
   def initialize
     @noteNumber = 1
-    @notesCursor = Cursor(nil)
   end
 
   ## Called when the activity is first created.
@@ -58,13 +57,13 @@ class Notepadv2 < ListActivity
   end
 
   def fillData: void
-    @notesCursor = @dbHelper.fetchAllNotes
-    startManagingCursor @notesCursor
+    notesCursor = @dbHelper.fetchAllNotes
+    startManagingCursor notesCursor
     
     from = String[1]; from[0] = NotesDbAdapter.KEY_TITLE
     to = int[1]; to[0] = R.id.text1
     
-    notes = SimpleCursorAdapter.new self, R.layout.notes_row, @notesCursor, from, to
+    notes = SimpleCursorAdapter.new self, R.layout.notes_row, notesCursor, from, to
     setListAdapter notes
   end
 
@@ -93,29 +92,14 @@ class Notepadv2 < ListActivity
   $Override
   def onListItemClick(l: ListView, v: View, position: int, id: long): void
     super l, v, position, id
-    c = @notesCursor
-    c.moveToPosition position
     i = Intent.new self, NoteEdit.class
     i.putExtra NotesDbAdapter.KEY_ROWID, id
-    i.putExtra NotesDbAdapter.KEY_TITLE, c.getString(c.getColumnIndexOrThrow(NotesDbAdapter.KEY_TITLE))
-    i.putExtra NotesDbAdapter.KEY_BODY, c.getString(c.getColumnIndexOrThrow(NotesDbAdapter.KEY_BODY))
     startActivityForResult i, @@ACTIVITY_EDIT
   end
 
   $Override
   def onActivityResult(requestCode: int, resultCode: int, intent: Intent): void
     super requestCode, resultCode, intent
-    extras = intent.getExtras
-    
-    title = extras.getString NotesDbAdapter.KEY_TITLE
-    body = extras.getString NotesDbAdapter.KEY_BODY
-    
-    if requestCode == @@ACTIVITY_CREATE
-      @dbHelper.createNote title, body
-    elsif requestCode == @@ACTIVITY_EDIT
-      rowId = extras.getLong NotesDbAdapter.KEY_ROWID
-      @dbHelper.updateNote rowId, title, body
-    end
     fillData
   end
 end
