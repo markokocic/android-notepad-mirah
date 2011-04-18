@@ -3,3 +3,11 @@ This project is intended to help me learn both Android development and Mirah lan
 It is port of Android Notepad tutorial to Mirah programming language.
 
 If you have suggestions about coding style, please let me know. Or, better yet, create a fork and send me a pull request.
+
+To build:
+
+  rake debug
+
+To install:
+
+  rake install
